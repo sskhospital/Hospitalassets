@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8"><title>ระบบซ่อมบำรุงครุภัณฑ์ รพ.สังขละบุรี</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase App & Realtime Database SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<!-- External Firebase Config & Assets -->
+<script src="firebase-config.js"></script>
+<script src="logo-data.js"></script>
+
+<style>
+:root{--bg:#eef5f4;--card:#fff;--tx:#17302e;--mu:#5d7573;--pr:#0f8b83;--pr2:#0a5f5a;--bd:#d5e3e1;--ok:#1e9e5a;--wn:#e08a00;--er:#d33f49;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a19;--card:#172726;--tx:#e3f0ee;--mu:#93aeab;--bd:#294341;--pr:#2fc0b5;--pr2:#1b8f86}}
+:root[data-theme="dark"]{--bg:#0e1a19;--card:#172726;--tx:#e3f0ee;--mu:#93aeab;--bd:#294341;--pr:#2fc0b5;--pr2:#1b8f86}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Sarabun","Noto Sans Thai",system-ui,sans-serif;font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:7px 12px;cursor:pointer;margin:2px}
+.btn.s{background:transparent;color:var(--pr);border:1px solid var(--pr)}.btn.d{background:var(--er)}.btn.o{background:var(--ok)}.btn.w{background:var(--wn)}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--card)}
+header{background:linear-gradient(120deg,var(--pr2),var(--pr));color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;flex:1}header small{opacity:.85;display:block;font-weight:400}
+nav{display:flex;gap:4px;overflow-x:auto;padding:8px;background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+nav button{white-space:nowrap;border:0;background:none;padding:8px 12px;border-radius:20px;cursor:pointer;color:var(--mu)}nav button.a{background:var(--pr);color:#fff}
+main{max-width:1100px;margin:auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.g{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.k{border-radius:12px;padding:12px;background:var(--card);border:1px solid var(--bd)}.k b{font-size:26px;display:block;color:var(--pr)}.k span{color:var(--mu);font-size:13px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:7px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}th{color:var(--mu);font-weight:600}
+.b{padding:2px 8px;border-radius:10px;font-size:12px;color:#fff;background:var(--mu)}.b.pending{background:var(--wn)}.b.approved{background:#3b7dd8}.b.inprogress{background:#8a56c9}.b.done{background:var(--ok)}.b.rejected{background:var(--er)}
+.bar{height:16px;background:var(--pr);border-radius:4px;min-width:2px}.row{display:flex;align-items:center;gap:8px;margin:4px 0}
+.mod{position:fixed;inset:0;background:#0008;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:16px;z-index:9}.mod>div{background:var(--card);border-radius:14px;padding:16px;width:100%;max-width:520px}
+label{display:block;margin:8px 0 3px;color:var(--mu);font-size:13px}
+.login{max-width:400px;margin:24px auto}.al{background:#e08a0022;border:1px solid var(--wn);border-radius:10px;padding:8px;margin-bottom:8px}
+#pf{display:none}
+@media print{body>*:not(#pf){display:none!important}#pf{display:block!important;color:#000;background:#fff;padding:20px}#pf td,#pf th{border:1px solid #000}}
+body{background:linear-gradient(180deg,var(--bg),color-mix(in srgb,var(--pr) 12%,var(--bg)))}
+header{background:linear-gradient(120deg,#0a5f3f,#0f8b6b 55%,#19b6a8);position:relative;overflow:hidden}header:after{content:"";position:absolute;right:-30px;top:-40px;width:160px;height:160px;border-radius:50%;background:#ffffff18}
+header img{box-shadow:0 2px 8px #0004}
+.bar{background:linear-gradient(90deg,#0f8b6b,#19b6a8,#f5b301)}
+.hero{display:flex;gap:12px;align-items:center;background:linear-gradient(120deg,#0a5f3f,#19b6a8 60%,#f5b301);color:#fff;border:0}
+.k{border-top:4px solid var(--pr);position:relative}.k i{position:absolute;right:10px;top:8px;font-style:normal;font-size:22px}
+.k1{border-color:#3b7dd8}.k2{border-color:#e08a00}.k3{border-color:#8a56c9}.k4{border-color:#1e9e5a}.k5{border-color:#d33f49}.k6{border-color:#f5b301}
+.pv{padding:2px 9px;border-radius:10px;font-size:12px;color:#fff;font-weight:600}.p3{background:#d33f49;animation:bl 1.4s infinite}.p2{background:#e08a00}.p1{background:#1e9e5a}
+@keyframes bl{50%{opacity:.6}}
+.ur{padding:8px 10px;margin:5px 0;border-radius:10px;border-left:5px solid;background:var(--bg)}.ur.u3{border-color:#d33f49}.ur.u2{border-color:#e08a00}.ur.u1{border-color:#1e9e5a}
+.tr{display:flex;align-items:flex-end;gap:8px;height:150px}.tr div{flex:1;text-align:center;font-size:12px}.tr .cb{background:linear-gradient(#19b6a8,#0a5f3f);border-radius:6px 6px 0 0;margin:2px auto 0;width:70%}
+.dn{width:130px;height:130px;border-radius:50%;flex:none;display:grid;place-items:center}.dn div{width:80px;height:80px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:700;font-size:20px}
+.ins{background:linear-gradient(120deg,#f5b30122,#19b6a822);border-radius:10px;padding:10px;margin:10px 0}
+:root{--bg:#f1f7f8;--card:#fff;--tx:#12303a;--mu:#5b7580;--pr:#0e7c86;--pr2:#075a63;--bd:#e0ebee;--gold:#c9a24b}
+body{background:var(--bg);font-family:"Prompt","Sarabun","Noto Sans Thai",system-ui,sans-serif}
+.shell{display:flex;min-height:100vh}
+aside#sb{width:262px;flex:none;background:linear-gradient(170deg,#04323b,#0a5f6b 60%,#0e7c86);color:#fff;display:flex;flex-direction:column;padding:16px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 6px 16px;border-bottom:1px solid #ffffff2a}.brand img{width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--gold)}.brand small{display:block;opacity:.75;font-size:12px}
+.sn{display:flex;flex-direction:column;gap:4px;margin:14px 0;flex:1}
+.sn button{text-align:left;background:none;border:0;color:#d5eef0;padding:11px 14px;border-radius:12px;cursor:pointer;font-size:15px}.sn button:hover{background:#ffffff16}
+.sn button.a{background:#fff;color:#075a63;font-weight:600;box-shadow:0 4px 14px #0003}
+.sn button.cta{background:linear-gradient(120deg,#c9a24b,#efd58a);color:#3a2b05;font-weight:600;margin-bottom:8px}
+.me{border-top:1px solid #ffffff2a;padding-top:12px}.me small{display:block;opacity:.75}.me button{background:#ffffff1f;border:0;color:#fff;border-radius:8px;padding:6px 10px;margin:8px 4px 0 0;cursor:pointer;font-size:12px}
+.cont{flex:1;min-width:0}.top{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:env(safe-area-inset-top,0px);z-index:4}.top h1{font-size:18px;margin:0;flex:1}.top span{color:var(--mu);font-size:13px}.hb,.ov{display:none}
+.card{border-radius:18px;box-shadow:0 6px 24px #0b3c4514;border:1px solid var(--bd)}
+.btn{border-radius:999px;background:linear-gradient(120deg,var(--pr2),var(--pr));padding:8px 15px}
+.k{border-radius:16px;box-shadow:0 4px 16px #0b3c4510}
+th{background:var(--bg)}
+.hero{background:linear-gradient(120deg,#04323b,#0e7c86 65%,#2aa6a0);padding:22px;border-radius:20px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-40px;bottom:-60px;width:200px;height:200px;border-radius:50%;border:26px solid #c9a24b44}
+.cta-big{background:linear-gradient(120deg,#c9a24b,#efd58a);color:#3a2b05;border:0;border-radius:999px;padding:12px 24px;font-weight:600;font-size:16px;cursor:pointer;box-shadow:0 6px 18px #0004}
+.qt{margin-bottom:12px}.tile{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px 8px;cursor:pointer;color:var(--tx);box-shadow:0 4px 16px #0b3c4510}.tile span{font-size:26px}.tile:hover{border-color:var(--gold);transform:translateY(-2px)}
+.lg{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}.lp1{background:linear-gradient(160deg,#04323b,#0e7c86);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px}.lp1 img{width:120px;height:120px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px var(--gold)}.lp2{display:grid;place-items:center;padding:20px}.login{max-width:400px;width:100%;margin:0}
+@media(max-width:820px){.lg{grid-template-columns:1fr}.lp1{padding:24px 16px}aside#sb{position:fixed;left:0;top:0;z-index:20;transform:translateX(-100%);transition:.25s;box-shadow:4px 0 24px #0006;padding-top:calc(16px + env(safe-area-inset-top,0px))}body.so aside#sb{transform:none}.hb{display:block;border:0;background:var(--pr);color:#fff;border-radius:10px;padding:6px 12px;font-size:18px}body.so .ov{display:block;position:fixed;inset:0;background:#0007;z-index:15}}
+:root{--bg:#f6f9fa;--card:#fff;--tx:#0f2a33;--mu:#64808a;--bd:#e6edf0;--pr:#0e7c86;--pr2:#0a6169;--gold:#c9a24b}
+body{font-family:"Inter","Noto Sans Thai","Prompt",system-ui,sans-serif;background:var(--bg);letter-spacing:-.003em}
+aside#sb{background:var(--card);color:var(--tx);border-right:1px solid var(--bd);width:250px;padding:18px 12px}
+.brand{border-bottom:1px solid var(--bd)}.brand img{box-shadow:0 0 0 2px var(--gold),0 0 0 5px #c9a24b22}.brand small{color:var(--mu);opacity:1}
+.sn button{color:var(--mu);border-radius:10px;padding:10px 12px;font-size:14px;position:relative;transition:.15s}.sn button:hover{background:var(--bg);color:var(--tx)}
+.sn button.a{background:color-mix(in srgb,var(--pr) 10%,transparent);color:var(--pr);box-shadow:none;font-weight:600}.sn button.a:before{content:"";position:absolute;left:-12px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--pr)}
+.sn button.cta{background:var(--pr);color:#fff;text-align:center;margin-bottom:10px;box-shadow:0 6px 16px color-mix(in srgb,var(--pr) 35%,transparent)}.sn button.cta:hover{background:var(--pr2);color:#fff}
+.me{border-color:var(--bd)}.me small{color:var(--mu);opacity:1}.me button{background:var(--bg);color:var(--tx);border:1px solid var(--bd)}
+.top{background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}.top h1{font-weight:600;font-size:17px}
+main{max-width:1180px;padding:24px}
+.card{border-radius:16px;box-shadow:0 1px 2px #0b3c4508;border:1px solid var(--bd)}.card h3{font-size:15px;font-weight:600;margin:0 0 12px}
+.btn{border-radius:10px;background:var(--pr);font-weight:500;font-size:13px;padding:8px 14px;transition:.15s}.btn:hover{background:var(--pr2)}
+.btn.s{background:var(--card);color:var(--tx);border:1px solid var(--bd)}.btn.s:hover{border-color:var(--pr);color:var(--pr)}
+.btn.o{background:#1e9e5a18;color:#178a4d}.btn.w{background:#e08a0018;color:#b36b00}.btn.d{background:#d33f4916;color:#c02d38}
+input,select,textarea{border-radius:10px;border:1px solid var(--bd);transition:.15s}input:focus,select:focus,textarea:focus{outline:0;border-color:var(--pr);box-shadow:0 0 0 3px color-mix(in srgb,var(--pr) 18%,transparent)}
+th{background:transparent;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu)}tr:hover td{background:color-mix(in srgb,var(--pr) 4%,transparent)}
+.b{background:var(--bd);color:var(--mu);font-weight:500}.b.pending{background:#e08a0018;color:#b36b00}.b.approved{background:#3b7dd818;color:#2a62b3}.b.inprogress{background:#8a56c918;color:#6d3fa8}.b.done{background:#1e9e5a18;color:#178a4d}.b.rejected{background:#d33f4918;color:#c02d38}
+.pv{font-weight:500}.p3{background:#d33f4918;color:#c02d38;animation:none}.p3:before,.p2:before,.p1:before{content:"● ";font-size:9px}.p2{background:#e08a0018;color:#b36b00}.p1{background:#1e9e5a18;color:#178a4d}
+.k{display:flex;flex-direction:column;padding:16px;border:1px solid var(--bd);border-radius:16px;box-shadow:0 1px 2px #0b3c4508;overflow:hidden}
+.k i{order:0;position:static;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 14%,transparent);font-size:18px;margin-bottom:12px}.k span{order:1;color:var(--mu);font-size:13px}.k b{order:2;font-size:28px;font-weight:600;color:var(--tx);line-height:1.2}
+.k:after{content:"";position:absolute;right:12px;bottom:14px;width:84px;height:34px;background:var(--c);opacity:.3;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 34'%3E%3Cpath d='M2 28L14 20L26 24L38 12L50 16L62 6L82 10' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 34'%3E%3Cpath d='M2 28L14 20L26 24L38 12L50 16L62 6L82 10' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+.k1{--c:#3b7dd8}.k2{--c:#e08a00}.k3{--c:#8a56c9}.k4{--c:#1e9e5a}.k5{--c:#d33f49}.k6{--c:#c9a24b}
+.hero{background:radial-gradient(circle at 92% 20%,color-mix(in srgb,var(--pr) 16%,transparent),transparent 45%),radial-gradient(circle at 60% 120%,#c9a24b22,transparent 40%),var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:20px;padding:26px}.hero:after{display:none}.hero h2{font-size:22px;font-weight:600}.hero small{color:var(--mu)}
+.cta-big{background:var(--pr);color:#fff;border-radius:12px;padding:11px 22px;font-size:15px;font-weight:500;box-shadow:0 8px 20px color-mix(in srgb,var(--pr) 35%,transparent)}.cta-big:hover{background:var(--pr2)}
+.tile{flex-direction:row;justify-content:flex-start;gap:12px;padding:14px;border-radius:14px;box-shadow:none;font-size:14px;font-weight:500;text-align:left}.tile span{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:color-mix(in srgb,var(--pr) 10%,transparent)}.tile:hover{border-color:var(--pr);transform:none;box-shadow:0 6px 18px #0b3c4512}
+.ur{border-left-width:3px;border-radius:8px;background:color-mix(in srgb,var(--pr) 4%,var(--card));border-top:1px solid var(--bd);border-right:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.bar{height:10px;border-radius:99px;background:linear-gradient(90deg,#0e7c86,#3bc0b8)}.tr .cb{background:linear-gradient(#3bc0b8,#0e7c86);border-radius:8px 8px 3px 3px}
+.ins{background:#c9a24b14;border-left:3px solid var(--gold);border-radius:8px}.al{border-radius:10px}
+.lp1{background:radial-gradient(circle at 15% 15%,#22a9b155,transparent 40%),radial-gradient(circle at 85% 90%,#c9a24b40,transparent 35%),#04323b}
+.mod>div{border-radius:18px;box-shadow:0 24px 60px #0006}
+.trk{flex:1;background:color-mix(in srgb,var(--mu) 14%,transparent);border-radius:99px;height:10px;overflow:hidden}.row b{min-width:28px;text-align:right;font-weight:600}.bar{min-width:0}
+.tr .cb{width:24px;border-radius:99px 99px 6px 6px}.tr>div{font-weight:600}
+.bi{position:relative;overflow:hidden}.bi:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#0e7c86,#3b7dd8,#8a56c9,#e5a100,#e0566a)}
+.pn{background:color-mix(in srgb,var(--pr) 4%,var(--card));border:1px solid var(--bd);border-radius:14px;padding:14px}.pn>b{display:block;margin-bottom:10px;font-weight:600}
+@keyframes rq{0%,100%{box-shadow:0 0 0 0 #e0566a66;opacity:1}50%{box-shadow:0 0 0 9px #e0566a00;opacity:.72}}
+.sn button.cta,.cta-big,.tile.rq{background:#ffe4e7;color:#c02d38;border:1px solid #f4b3ba;animation:rq 1.6s ease-in-out infinite}
+.sn button.cta:hover,.cta-big:hover,.tile.rq:hover{background:#ffd3d8;color:#a91f2b;border-color:#ec8f99}
+.tile.rq span{background:#ffffffaa}.cta-big{box-shadow:none}
+@media(prefers-reduced-motion:reduce){.sn button.cta,.cta-big,.tile.rq{animation:none}}
+:root{--sh1:0 1px 2px rgba(8,50,58,.06),0 4px 14px -4px rgba(8,50,58,.08);--sh2:0 2px 4px rgba(8,50,58,.05),0 18px 36px -14px rgba(8,50,58,.22)}
+body{background:radial-gradient(1100px 480px at 92% -8%,color-mix(in srgb,var(--pr) 11%,transparent),transparent),radial-gradient(800px 380px at -8% 108%,#c9a24b16,transparent),var(--bg);background-attachment:fixed}
+h1,h2,h3,h4,.k b,.brand b{font-family:"Prompt","Inter","Noto Sans Thai",sans-serif}
+::selection{background:color-mix(in srgb,var(--pr) 25%,transparent)}
+aside#sb{background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--pr) 5%,var(--card)));box-shadow:1px 0 0 var(--bd),8px 0 30px -18px rgba(8,50,58,.25)}
+.top{box-shadow:0 1px 0 var(--bd),0 8px 24px -16px rgba(8,50,58,.2)}.top:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.6}
+.card{background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--pr) 2%,var(--card)));box-shadow:var(--sh1)}
+.btn{background:linear-gradient(135deg,#139aa4,#0a6169);box-shadow:0 4px 12px -3px color-mix(in srgb,var(--pr) 55%,transparent)}.btn:hover{background:linear-gradient(135deg,#0e7c86,#074b52);transform:translateY(-1px)}
+.btn.s,.btn.o,.btn.w,.btn.d{box-shadow:none}.btn.s{background:var(--card)}
+.k{box-shadow:var(--sh1);background:linear-gradient(160deg,var(--card),color-mix(in srgb,var(--c,var(--pr)) 7%,var(--card)));transition:.2s}.k:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
+.hero{box-shadow:var(--sh2)}.hero h2{font-family:"Prompt",sans-serif;font-weight:600}
+.tile{box-shadow:var(--sh1);transition:.2s}.tile:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
+.pn{box-shadow:inset 0 1px 0 #fff8}
+.bns{margin-bottom:6px}.bn{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;margin-bottom:8px;border:1px solid;box-shadow:var(--sh1)}.bn>div{flex:1;font-size:14px}.bn i{font-style:normal;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#fff9;flex:none}
+.bn.info{background:linear-gradient(100deg,color-mix(in srgb,var(--pr) 12%,var(--card)),var(--card));border-color:color-mix(in srgb,var(--pr) 30%,var(--bd))}
+.bn.warn{background:linear-gradient(100deg,#f5b30120,var(--card));border-color:#e5a10055}
+.bn.danger{background:linear-gradient(100deg,#e0566a1e,var(--card));border-color:#e0566a55}
+.tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.tb input,.tb select{width:auto}
+.eg{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.ec{background:var(--card);border:1px solid var(--bd);border-radius:18px;overflow:hidden;box-shadow:var(--sh1);transition:.25s}.ec:hover{box-shadow:var(--sh2);transform:translateY(-3px)}
+.ph{height:160px;background:linear-gradient(135deg,color-mix(in srgb,var(--pr) 16%,var(--card)),color-mix(in srgb,#c9a24b 16%,var(--card)));display:grid;place-items:center;position:relative}.ph img{width:100%;height:100%;object-fit:cover}.ph>span:first-child{font-size:48px}
+.ph .b{position:absolute;top:10px;right:10px;background:var(--card);box-shadow:var(--sh1)}
+.eb{padding:14px 16px}.eb h4{margin:2px 0 8px;font-size:16px}.mt{color:var(--mu);font-size:13px;margin:3px 0}.pr{font-weight:600;color:var(--pr);margin:8px 0;font-family:"Prompt",sans-serif}
+.ev{display:flex;gap:16px;align-items:center}.ev img,.ph0{width:112px;height:112px;border-radius:18px;object-fit:cover;flex:none;box-shadow:var(--sh1)}.ph0{display:grid;place-items:center;font-size:46px;background:var(--bg)}
+.kv{background:var(--bg);border-radius:12px;padding:10px 12px}.kv span{display:block;color:var(--mu);font-size:12px}.kv b{font-size:14px;font-weight:600}
+.login{box-shadow:var(--sh2)}
+
+/* Firebase Cloud Sync Badge */
+.cloud-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid var(--bd);background:var(--card);cursor:pointer;transition:.2s}
+.cloud-badge.online{color:#178a4d;border-color:#1e9e5a55;background:#1e9e5a14}
+.cloud-badge.connecting{color:#b36b00;border-color:#e08a0055;background:#e08a0014}
+.cloud-badge.offline{color:var(--mu);border-color:var(--bd);background:var(--bg)}
+.cloud-badge .dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+.cloud-badge.online .dot{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
+</style></head><body>
+<div id="app"></div><div id="pf"></div>
+
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10),uid=()=>Math.random().toString(36).slice(2,8);
+const ST={pending:'รออนุมัติ',approved:'อนุมัติแล้ว',inprogress:'กำลังซ่อม',done:'เสร็จสิ้น',rejected:'ไม่อนุมัติ'},RL={admin:'ผู้ดูแลระบบ',head:'ผู้บริหาร/ผู้อนุมัติ',tech:'ช่างเทคนิค',staff:'เจ้าหน้าที่แจ้งซ่อม'};
+const NAV=[['new','🩺 แจ้งซ่อมออนไลน์','admin head tech staff'],['dash','📊 แดชบอร์ด','admin head tech staff'],['req','🛠 งานซ่อม','admin head tech staff'],['eq','🩺 ครุภัณฑ์','admin head tech'],['pt','📦 อะไหล่','admin head tech'],['rep','📑 รายงาน','admin head'],['hist','🗂 ประวัติซ่อม','admin head tech staff'],['sat','⭐ ประเมินความพึงพอใจ','admin head tech staff'],['usr','👥 ผู้ใช้','admin'],['api','🔌 API / Cloud','admin']];
+let D,me=null,view='dash';
+
+function seed(){const t=today(),m=t.slice(0,8);return{cfg:{mail:'store@sangkhlaburi-hospital.example',api:''},log:[],
+users:[{id:'u1',u:'admin',p:'admin123',name:'ผู้ดูแลระบบ',role:'admin'},{id:'u2',u:'head',p:'head123',name:'ผอ./หัวหน้างาน',role:'head'},{id:'u3',u:'tech',p:'tech123',name:'ช่างเทคนิค',role:'tech'},{id:'u4',u:'staff',p:'staff123',name:'พยาบาลตึกผู้ป่วยใน',role:'staff'}],
+eq:[{id:'e1',code:'EQ-001',name:'เครื่องวัดความดัน',dept:'OPD',loc:'ห้องตรวจ 1',status:'ปกติ'},{id:'e2',code:'EQ-002',name:'เครื่อง X-ray',dept:'รังสี',loc:'ตึกรังสี',status:'ซ่อม'},{id:'e3',code:'EQ-003',name:'เครื่องช่วยหายใจ',dept:'ICU',loc:'ICU',status:'ปกติ'},{id:'e4',code:'EQ-004',name:'เครื่องปรับอากาศ',dept:'ห้องฉุกเฉิน',loc:'ER',status:'ปกติ'},{id:'e5',code:'EQ-005',name:'เครื่องอัลตราซาวด์',dept:'ฝากครรภ์',loc:'ANC',status:'ปกติ'}],
+pt:[{id:'p1',name:'แบตเตอรี่ 12V',qty:8,min:4,unit:'ก้อน'},{id:'p2',name:'สายวัดความดัน',qty:3,min:5,unit:'เส้น'},{id:'p3',name:'หลอด X-ray',qty:2,min:1,unit:'หลอด'},{id:'p4',name:'ฟิลเตอร์แอร์',qty:10,min:4,unit:'ชิ้น'}],
+rq:[{id:'r1',eq:'e2',by:'u4',date:m+'02',prob:'ภาพไม่ชัด มีเสียงผิดปกติ',pri:'สูง',st:'done',tech:'u3',cost:4500,note:'เปลี่ยนหลอด',done:m+'05',rate:5,cm:'ซ่อมเร็ว'},{id:'r2',eq:'e1',by:'u4',date:m+'08',prob:'ค่าความดันคลาดเคลื่อน',pri:'ปานกลาง',st:'done',tech:'u3',cost:300,note:'เปลี่ยนสายวัด',done:m+'09',rate:4,cm:''},{id:'r3',eq:'e4',by:'u4',date:t,prob:'แอร์ไม่เย็น',pri:'สูง',st:'pending'},{id:'r4',eq:'e3',by:'u4',date:t,prob:'มีเสียงเตือนบ่อย',pri:'ปานกลาง',st:'approved'}]}}
+
+try{D=JSON.parse(localStorage.getItem('sk_db'))}catch(e){}D=D||seed();
+
+// ==========================================
+// Firebase Realtime Cloud Synchronization
+// ==========================================
+let fbApp=null,fbDb=null,cloudStatus='offline',cloudErrMsg='';
+
+function getFbConfig(){
+  try{
+    const stored=localStorage.getItem('sk_firebase_cfg');
+    if(stored) return JSON.parse(stored);
+  }catch(e){}
+  if(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && !window.FIREBASE_CONFIG.apiKey.includes('Placeholder')){
+    return window.FIREBASE_CONFIG;
+  }
+  return window.FIREBASE_CONFIG || null;
+}
+
+function initFirebase(){
+  const cfg = getFbConfig();
+  if(!cfg || !cfg.apiKey || cfg.apiKey.includes('Placeholder')){
+    cloudStatus = 'offline';
+    cloudErrMsg = 'ยังไม่ได้ตั้งค่า Firebase Configuration หรือยังใช้ค่าเริ่มต้น (ตั้งค่าได้ในเมนู API / Cloud)';
+    render();
+    return;
+  }
+  try {
+    cloudStatus = 'connecting';
+    render();
+    if(firebase.apps && firebase.apps.length > 0){
+      fbApp = firebase.app();
+    } else {
+      fbApp = firebase.initializeApp(cfg);
+    }
+    fbDb = firebase.database();
+
+    // Listen to Firebase connection state
+    fbDb.ref('.info/connected').on('value', snap => {
+      if(snap.val() === true){
+        cloudStatus = 'online';
+        cloudErrMsg = '';
+      } else {
+        if(cloudStatus !== 'offline') cloudStatus = 'connecting';
+      }
+      render();
+    });
+
+    // Real-time listener for the main database
+    fbDb.ref('sk_db').on('value', snapshot => {
+      const val = snapshot.val();
+      if(val){
+        D = val;
+        try{ localStorage.setItem('sk_db', JSON.stringify(D)); }catch(e){}
+        cloudStatus = 'online';
+        cloudErrMsg = '';
+        render();
+      } else {
+        // Initial push from local seed if cloud is empty
+        fbDb.ref('sk_db').set(D).then(()=>{
+          cloudStatus = 'online';
+          render();
+        }).catch(err => {
+          cloudErrMsg = err.message;
+          render();
+        });
+      }
+    }, err => {
+      console.warn('Firebase RTDB Read Error:', err);
+      cloudStatus = 'offline';
+      cloudErrMsg = err.message;
+      render();
+    });
+  } catch(e) {
+    console.warn('Firebase Init Error:', e);
+    cloudStatus = 'offline';
+    cloudErrMsg = e.message;
+    render();
+  }
+}
+
+// Global Save Handler (LocalStorage + Realtime Firebase Database)
+const save=()=>{
+  try{localStorage.setItem('sk_db',JSON.stringify(D))}catch(e){}
+  if(fbDb && cloudStatus === 'online'){
+    fbDb.ref('sk_db').set(D).catch(err=>{
+      console.warn('Firebase sync error:', err);
+    });
+  }
+};
+
+const U=id=>D.users.find(x=>x.id===id)?.name||'-',E=id=>D.eq.find(x=>x.id===id)?.name||'(ลบแล้ว)',can=(...r)=>r.includes(me.role);
+const low=()=>D.pt.filter(p=>p.qty<=p.min);
+function checkLow(){low().forEach(p=>{const m='แจ้งเตือนอะไหล่ใกล้หมด: '+p.name+' เหลือ '+p.qty+' '+p.unit+' → ส่งอีเมลถึง '+D.cfg.mail;if(!D.log.find(l=>l.m===m))D.log.unshift({d:new Date().toLocaleString('th-TH'),m})})}
+const LOGO=window.HOSPITAL_LOGO||"";
+function hero(){return`<img src="${LOGO}" width="60" height="60" alt="โลโก้โรงพยาบาลสังขละบุรี" style="border-radius:50%;background:#fff">`}
+
+function render(){
+  const a=$('#app');
+  if(!me){
+    a.innerHTML=`<div class="lg"><div class="lp1">${hero()}<h1 style="margin:16px 0 4px">ระบบซ่อมบำรุงครุภัณฑ์</h1><p style="margin:0;opacity:.9">โรงพยาบาลสังขละบุรี · SANGKHLABURI HOSPITAL</p><p style="opacity:.75;max-width:300px">แจ้งซ่อมออนไลน์ ติดตามสถานะ และบริหารทรัพยากรอย่างมีประสิทธิภาพ</p></div><div class="lp2"><div class="card login"><h3>เข้าสู่ระบบ</h3><label>ชื่อผู้ใช้</label><input id="lu"><label>รหัสผ่าน</label><input id="lp" type="password"><p><button class="btn" onclick="login()">เข้าสู่ระบบ</button><button class="btn s" onclick="showCode()">&lt;/&gt; ดูโค้ด</button></p><small style="color:var(--mu)">บัญชีทดลอง: admin/admin123 · head/head123 · tech/tech123 · staff/staff123</small></div></div></div>`;
+    return;
+  }
+  checkLow();save();
+  const ns=NAV.filter(n=>n[2].includes(me.role));
+  const cloudBadgeHtml=`<span class="cloud-badge ${cloudStatus}" onclick="view='api';render()" title="คลิกเพื่อตั้งค่า Firebase Cloud"><span class="dot"></span>${cloudStatus==='online'?'Realtime Cloud':cloudStatus==='connecting'?'กำลังเชื่อมต่อ...':'โหมด Local'}</span>`;
+  a.innerHTML=`<div class="shell"><aside id="sb"><div class="brand">${hero()}<div><b>รพ.สังขละบุรี</b><small>ระบบซ่อมบำรุงครุภัณฑ์</small></div></div><div class="sn">${ns.map(n=>`<button class="${view==n[0]?'a':''} ${n[0]=='new'?'cta':''}" onclick="${n[0]=='new'?'addReq()':`view='${n[0]}';render()`}">${n[1]}</button>`).join('')}</div><div class="me"><b>${esc(me.name)}</b><small>${RL[me.role]}</small><button onclick="showCode()">&lt;/&gt; ดูโค้ด</button><button onclick="me=null;render()">ออกจากระบบ</button></div></aside><div class="ov" onclick="document.body.classList.remove('so')"></div><div class="cont"><div class="top"><button class="hb" onclick="document.body.classList.toggle('so')">☰</button><h1>${(NAV.find(n=>n[0]==view)||[])[1]||''}</h1><div style="display:flex;align-items:center;gap:12px">${cloudBadgeHtml}<span>${esc(me.name)}</span></div></div><main>${V[view]()}</main></div></div>`;
+  document.body.classList.remove('so');
+}
+
+function login(){const u=D.users.find(x=>x.u===$('#lu').value&&x.p===$('#lp').value);if(!u)return alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');me=u;view='dash';render()}
+function form(t,f,ok,val={}){const m=document.createElement('div');m.className='mod';m.innerHTML=`<div><h3>${t}</h3>${f.map(x=>`<label>${x.l}</label>${x.t=='img'?IMGF(x,val):x.t=='select'?`<select id="f_${x.k}">${x.o.map(o=>{o=[].concat(o);return`<option value="${esc(o[0])}" ${o[0]==val[x.k]?'selected':''}>${esc(o[1]??o[0])}</option>`}).join('')}</select>`:x.t=='textarea'?`<textarea id="f_${x.k}">${esc(val[x.k]||'')}</textarea>`:`<input id="f_${x.k}" type="${x.t||'text'}" value="${esc(val[x.k]??'')}">`}`).join('')}<p><button class="btn" id="fok">บันทึก</button><button class="btn s" onclick="this.closest('.mod').remove()">ยกเลิก</button></p></div>`;document.body.appendChild(m);BINDIMG(m,f);m.querySelector('#fok').onclick=()=>{const o={};f.forEach(x=>o[x.k]=x.t=='number'?+m.querySelector('#f_'+x.k).value:m.querySelector('#f_'+x.k).value);if(ok(o)!==false){m.remove();render()}}}
+const PAL=['#0e7c86','#3b7dd8','#8a56c9','#e5a100','#1e9e5a','#e0566a'];
+function bars(data){const mx=Math.max(1,...data.map(d=>d[1]));return data.map((d,i)=>`<div class="row"><span style="width:110px;font-size:13px">${esc(d[0])}</span><div class="trk"><div class="bar" style="width:${d[1]?Math.max(4,d[1]/mx*100):0}%;background:linear-gradient(90deg,${PAL[i%6]}99,${PAL[i%6]})"></div></div><b>${d[1]}</b></div>`).join('')||'<small>ไม่มีข้อมูล</small>'}
+const inP=(r,type,v)=>(type=='d'?r.date==v:type=='m'?r.date.slice(0,7)==v:r.date.slice(0,4)==v);
+
+const V={
+dash(){const m=today().slice(0,7),R=D.rq.filter(r=>me.role=='staff'?r.by==me.id:true),M=R.filter(r=>r.date.slice(0,7)==m),op=R.filter(r=>r.st!='done'&&r.st!='rejected').sort((a,b)=>PW[b.pri]-PW[a.pri]||a.date.localeCompare(b.date)),dep={};M.forEach(r=>{const d=D.eq.find(e=>e.id==r.eq)?.dept||'-';dep[d]=(dep[d]||0)+1});const s=stats(m);
+return`${banners()}<div class="card hero"><div style="flex:1"><h2 style="margin:0">สวัสดี ${esc(me.name)}</h2><small>ภาพรวมการซ่อมบำรุงประจำเดือน ${m}</small><div style="margin-top:14px"><button class="cta-big" onclick="addReq()">🩺 แจ้งซ่อมออนไลน์</button></div></div><svg viewBox="0 0 160 100" width="170" aria-hidden="true"><rect x="8" y="14" width="96" height="70" rx="14" fill="#0e7c8618"/><path d="M20 52h20l8-22 14 40 10-26 8 8h20" stroke="#0e7c86" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="118" cy="40" r="30" fill="#0e7c86"/><path d="M118 26v28M104 40h28" stroke="#fff" stroke-width="8" stroke-linecap="round"/><circle cx="140" cy="82" r="10" fill="#c9a24b"/><path d="M135 82l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>
+<div class="g qt"><button class="tile rq" onclick="addReq()"><span>🩺</span>แจ้งซ่อมออนไลน์</button><button class="tile" onclick="view='req';render()"><span>📋</span>ติดตามงานซ่อม</button><button class="tile" onclick="view='sat';render()"><span>⭐</span>ประเมินความพึงพอใจ</button><button class="tile" onclick="view='hist';render()"><span>🗂</span>ประวัติการซ่อม</button></div>
+<div class="card"><h3>🚨 งานซ่อมเร่งด่วน (เรียงตามความเร่งด่วน)</h3>${op.slice(0,6).map(r=>`<div class="ur u${PW[r.pri]}">${pb(r.pri)} <b>${esc(E(r.eq))}</b> — ${esc(r.prob)}<small> · ${rc(r)} · รอมา ${Math.max(0,Math.floor((Date.now()-new Date(r.date))/864e5))} วัน · ${ST[r.st]}</small></div>`).join('')||'<small>ไม่มีงานค้าง 🎉</small>'}</div>
+<div class="g"><div class="k k1"><i>🛠</i><b>${M.length}</b><span>งานซ่อมเดือนนี้</span></div><div class="k k2"><i>⏳</i><b>${R.filter(r=>r.st=='pending').length}</b><span>รออนุมัติ</span></div><div class="k k3"><i>🔧</i><b>${R.filter(r=>r.st=='inprogress'||r.st=='approved').length}</b><span>กำลังดำเนินการ</span></div><div class="k k4"><i>✅</i><b>${M.filter(r=>r.st=='done').length}</b><span>ซ่อมเสร็จ</span></div><div class="k k5"><i>💰</i><b>${M.reduce((s,r)=>s+(r.cost||0),0).toLocaleString()}</b><span>ค่าซ่อม (บาท)</span></div><div class="k k6"><i>⭐</i><b>${s.sat}</b><span>ความพึงพอใจเฉลี่ย /5</span></div></div><br>
+${can('admin','head')?bi():''}
+${can('admin','head','tech')?`<div class="card"><h3>📦 สต็อกอะไหล่ (เรียลไทม์)</h3>${low().map(p=>`<div class="al">⚠️ ${esc(p.name)} เหลือ ${p.qty} ${p.unit} (ขั้นต่ำ ${p.min})</div>`).join('')}${bars(D.pt.map(p=>[p.name,p.qty]))}</div>`:''}
+<div class="card"><h3>งานซ่อมแยกตามหน่วยงาน (เดือนนี้)</h3>${bars(Object.entries(dep))}</div>`},
+
+sat(){const my=r=>me.role!='staff'||r.by==me.id,dn=D.rq.filter(r=>r.st=='done'&&my(r)),wait=dn.filter(r=>!r.rate),rd=D.rq.filter(r=>r.rate),av=a=>a.length?(a.reduce((s,x)=>s+x,0)/a.length).toFixed(2):'-',tc={};rd.filter(r=>r.tech).forEach(r=>(tc[U(r.tech)]=tc[U(r.tech)]||[]).push(r.rate));
+const cr=[['sp','ความรวดเร็ว'],['ql','คุณภาพงาน'],['sv','การให้บริการ']].map(([k,l])=>[l,+av(rd.filter(r=>r.rt).map(r=>r.rt[k]))||0]);
+return`<div class="card hero"><div style="flex:1"><h2 style="margin:0">⭐ ประเมินความพึงพอใจหลังการซ่อม</h2><small>ความเห็นของท่านช่วยให้เราปรับปรุงงานบริการต่อไป</small></div></div>
+<div class="g"><div class="k k6"><i>⭐</i><b>${av(rd.map(r=>r.rate))}</b><span>คะแนนเฉลี่ยรวม /5</span></div><div class="k k4"><i>📝</i><b>${rd.length}</b><span>ตอบแบบประเมินแล้ว</span></div><div class="k k2"><i>⏳</i><b>${wait.length}</b><span>รอประเมิน</span></div><div class="k k1"><i>👍</i><b>${rd.length?Math.round(rd.filter(r=>r.rate>=4).length/rd.length*100):0}%</b><span>พึงพอใจมาก (≥4)</span></div></div><br>
+<div class="card"><h3>📝 งานซ่อมเสร็จที่รอประเมิน</h3>${wait.map(r=>`<div class="ur u1"><b>${rc(r)}</b> ${esc(E(r.eq))} <small>ซ่อมเสร็จ ${r.done||''}</small> <button class="btn w" onclick="rate('${r.id}')">ประเมิน</button></div>`).join('')||'<small>ไม่มีรายการรอประเมิน 🎉</small>'}</div>
+${can('admin','head','tech')?`<div class="card"><h3>สรุปผลแยกหัวข้อ</h3>${bars(cr)}<h3>การกระจายคะแนน</h3>${bars(stats(window.bm||today().slice(0,7)).dist.map((d,i)=>[d[0],rd.filter(r=>Math.round(r.rate)==5-i).length]))}<h3>คะแนนเฉลี่ยรายช่าง</h3>${bars(Object.entries(tc).map(([n,a])=>[n,+av(a)]))}<h3>💬 ข้อเสนอแนะล่าสุด</h3>${rd.filter(r=>r.cm).slice(-8).reverse().map(r=>`<div class="ur u1">⭐${r.rate} — ${esc(r.cm)} <small>(${esc(E(r.eq))})</small></div>`).join('')||'<small>ยังไม่มีข้อเสนอแนะ</small>'}</div>`:''}`},
+
+req(){const R=D.rq.filter(r=>me.role=='staff'?r.by==me.id:true).filter(r=>!window.rf||D.eq.find(e=>e.id==r.eq)?.cat==rf).slice().sort((a,b)=>(a.st=='done'||a.st=='rejected')-(b.st=='done'||b.st=='rejected')||PW[b.pri]-PW[a.pri]||b.date.localeCompare(a.date));return`<div class="card"><button class="btn" onclick="addReq()">＋ แจ้งซ่อมใหม่</button> <select style="width:auto" onchange="rf=this.value;render()"><option value="">ทุกประเภทครุภัณฑ์</option>${CAT.map(c=>`<option ${window.rf==c?'selected':''}>${c}</option>`).join('')}</select><div class="tw"><table><tr><th>วันที่</th><th>ครุภัณฑ์</th><th>อาการ</th><th>สถานะ</th><th>จัดการ</th></tr>${R.map(r=>`<tr><td>${r.date}<br><small><b>${rc(r)}</b></small></td><td>${esc(E(r.eq))}<br><small>${D.eq.find(e=>e.id==r.eq)?.code||''} · ${U(r.by)}<br>🏷 ${esc(D.eq.find(e=>e.id==r.eq)?.cat||'')}</small></td><td>${esc(r.prob)}<br>${pb(r.pri)}</td><td><span class="b ${r.st}">${ST[r.st]}</span>${r.rate?'<br>⭐'+r.rate:''}</td><td>
+<button class="btn s" onclick="pr('${r.id}')">🖨 ใบส่งซ่อม</button>
+${r.st=='pending'&&can('admin','head')?`<button class="btn o" onclick="setSt('${r.id}','approved')">อนุมัติ</button><button class="btn d" onclick="setSt('${r.id}','rejected')">ไม่อนุมัติ</button>`:''}
+${r.st=='approved'&&can('admin','tech')?`<button class="btn w" onclick="setSt('${r.id}','inprogress')">เริ่มซ่อม</button>`:''}
+${r.st=='inprogress'&&can('admin','tech')?`<button class="btn o" onclick="finish('${r.id}')">ซ่อมเสร็จ</button>`:''}
+${r.st=='done'&&!r.rate&&(r.by==me.id||can('admin','head'))?`<button class="btn w" onclick="rate('${r.id}')">ประเมิน</button>`:''}
+${can('admin')?`<button class="btn d" onclick="if(confirm('ลบรายการ?')){D.rq=D.rq.filter(x=>x.id!='${r.id}');save();render()}">ลบ</button>`:''}</td></tr>`).join('')}</table></div></div>`},
+
+eq(){const w=can('admin','tech'),q=(window.eqs||'').toLowerCase(),L=D.eq.filter(e=>(!window.ef||e.cat==ef)&&(e.name+e.code+(e.brand||'')+(e.model||'')+(e.serial||'')+e.dept).toLowerCase().includes(q)),tot=L.reduce((s,e)=>s+(e.price||0),0);
+return`<div class="card"><div class="tb">${w?'<button class="btn" onclick="eqForm()">＋ เพิ่มครุภัณฑ์</button>':''}<input style="max-width:280px" placeholder="🔍 ค้นหา ชื่อ / ยี่ห้อ / รุ่น / Serial" value="${esc(window.eqs||'')}" onchange="eqs=this.value;render()"><select onchange="ef=this.value;render()"><option value="">ทุกประเภท</option>${CAT.map(c=>`<option ${window.ef==c?'selected':''}>${c}</option>`).join('')}</select><small style="color:var(--mu)">${L.length} รายการ · มูลค่าจัดซื้อรวม ฿${tot.toLocaleString()}</small></div></div>
+<div class="eg">${L.map(e=>`<div class="ec"><div class="ph">${e.photo?`<img src="${esc(e.photo)}" alt="">`:'<span>🩺</span>'}<span class="b ${e.status=='ปกติ'?'done':e.status=='ซ่อม'?'inprogress':'rejected'}">${esc(e.status)}</span></div><div class="eb"><small style="color:var(--mu)">${esc(e.code)} · ${esc((e.cat||'').replace('ครุภัณฑ์',''))}</small><h4>${esc(e.name)}</h4><div class="mt">🏷 ${esc(e.brand||'-')} · ${esc(e.model||'-')}</div><div class="mt">🔢 S/N ${esc(e.serial||'-')}</div><div class="mt">📍 ${esc(e.dept)} / ${esc(e.loc)}</div><div class="pr">฿${(e.price||0).toLocaleString()}</div><div><button class="btn s" onclick="eqView('${e.id}')">📜 ประวัติซ่อม (${D.rq.filter(r=>r.eq==e.id).length})</button>${w?`<button class="btn s" onclick="eqForm('${e.id}')">แก้ไข</button><button class="btn d" onclick="if(confirm('ลบ?')){D.eq=D.eq.filter(x=>x.id!='${e.id}');save();render()}">ลบ</button>`:''}</div></div></div>`).join('')||'<div class="card">ไม่พบรายการ</div>'}</div>`},
+
+pt(){const w=can('admin','tech');return`<div class="card">${w?'<button class="btn" onclick="ptForm()">＋ เพิ่มอะไหล่</button>':''}<div class="tw"><table><tr><th>อะไหล่</th><th>คงเหลือ</th><th>ขั้นต่ำ</th><th></th></tr>${D.pt.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.qty<=p.min?'⚠️ ':''}<b>${p.qty}</b> ${esc(p.unit)}</td><td>${p.min}</td><td>${w?`<button class="btn s" onclick="ptForm('${p.id}')">แก้ไข/เติมสต็อก</button><button class="btn d" onclick="if(confirm('ลบ?')){D.pt=D.pt.filter(x=>x.id!='${p.id}');save();render()}">ลบ</button>`:''}</td></tr>`).join('')}</table></div></div>`},
+
+usr(){return`<div class="card"><button class="btn" onclick="usForm()">＋ เพิ่มผู้ใช้</button><div class="tw"><table><tr><th>ชื่อผู้ใช้</th><th>ชื่อ</th><th>สิทธิ์</th><th></th></tr>${D.users.map(u=>`<tr><td>${esc(u.u)}</td><td>${esc(u.name)}</td><td>${RL[u.role]}</td><td><button class="btn s" onclick="usForm('${u.id}')">แก้ไข</button>${u.id!=me.id?`<button class="btn d" onclick="if(confirm('ลบ?')){D.users=D.users.filter(x=>x.id!='${u.id}');save();render()}">ลบ</button>`:''}</td></tr>`).join('')}</table></div></div>`},
+
+hist(){const q=(window.hq||'').toLowerCase(),R=D.rq.filter(r=>r.st=='done'&&(me.role!='staff'||r.by==me.id)&&(E(r.eq)+r.prob+(r.note||'')).toLowerCase().includes(q));return`<div class="card"><input placeholder="🔍 ค้นหาประวัติ (ชื่อเครื่อง/อาการ/วิธีซ่อม)" value="${esc(window.hq||'')}" onchange="hq=this.value;render()"><div class="tw"><table><tr><th>วันที่ซ่อมเสร็จ</th><th>ครุภัณฑ์</th><th>อาการ</th><th>วิธีแก้ไข</th><th>ช่าง</th><th>ค่าใช้จ่าย</th></tr>${R.map(r=>`<tr><td>${r.done||''}</td><td>${esc(E(r.eq))}</td><td>${esc(r.prob)}</td><td>${esc(r.note||'')}</td><td>${U(r.tech)}</td><td>${(r.cost||0).toLocaleString()}</td></tr>`).join('')}</table></div></div>`},
+
+rep(){const type=window.rt||'m',v=window.rv||today().slice(0,type=='d'?10:type=='m'?7:4),R=D.rq.filter(r=>inP(r,type,v)),dn=R.filter(r=>r.st=='done'),rt=R.filter(r=>r.rate);window.RR=R;
+return`<div class="card"><div class="g"><div><label>ประเภทรายงาน</label><select onchange="rt=this.value;rv=today().slice(0,{d:10,m:7,y:4}[rt]);render()"><option value="d" ${type=='d'?'selected':''}>รายวัน</option><option value="m" ${type=='m'?'selected':''}>รายเดือน</option><option value="y" ${type=='y'?'selected':''}>รายปี</option></select></div><div><label>ช่วงเวลา (${type=='d'?'YYYY-MM-DD':type=='m'?'YYYY-MM':'YYYY'})</label><input value="${v}" onchange="rv=this.value;render()"></div></div>
+<h3>สรุปผลการปฏิบัติงาน ${v}</h3><div class="g"><div class="k"><b>${R.length}</b><span>งานทั้งหมด</span></div><div class="k"><b>${dn.length}</b><span>เสร็จสิ้น</span></div><div class="k"><b>${dn.reduce((s,r)=>s+(r.cost||0),0).toLocaleString()}</b><span>ค่าซ่อม (บาท)</span></div><div class="k"><b>${rt.length?(rt.reduce((s,r)=>s+r.rate,0)/rt.length).toFixed(2):'-'}</b><span>พึงพอใจ /5</span></div></div><br>
+<div class="tw"><table><tr><th>วันที่</th><th>ประเภท</th><th>ครุภัณฑ์</th><th>อาการ</th><th>สถานะ</th><th>ค่าซ่อม</th><th>คะแนน</th></tr>${R.map(r=>`<tr><td>${r.date}</td><td><small>${esc(D.eq.find(e=>e.id==r.eq)?.cat||'')}</small></td><td>${esc(E(r.eq))}</td><td>${esc(r.prob)}</td><td>${ST[r.st]}</td><td>${r.cost||0}</td><td>${r.rate||'-'}</td></tr>`).join('')}</table></div>
+<button class="btn" onclick="window.print0()">📄 พิมพ์ / บันทึก PDF</button><button class="btn o" onclick="cp()">📗 คัดลอกเป็น Excel (วางใน Excel ได้ทันที)</button></div>`},
+
+api(){
+  const cfg = getFbConfig() || {};
+  return`<div class="card bi">
+<h3>🔥 การเชื่อมต่อ Firebase Realtime Database &amp; Cloud Sync</h3>
+<div class="ins">
+สถานะการเชื่อมต่อ: <b>${cloudStatus==='online'?'🟢 เชื่อมต่อ Realtime Cloud สำเร็จ':cloudStatus==='connecting'?'🟡 กำลังเชื่อมต่อ...':'⚪ โหมด Local / ออฟไลน์'}</b><br>
+${cloudErrMsg?`<small style="color:var(--er)">หมายเหตุ: ${esc(cloudErrMsg)}</small><br>`:''}
+ข้อมูลการแจ้งซ่อม สต็อก และสถานะจะอัปเดตแบบ <b>Real-time ทันที</b> เมื่อมีผู้ใช้งานแก้ไขหรือแจ้งซ่อมเข้ามา
+</div>
+<label>Firebase Configuration (JSON Object)</label>
+<textarea id="fb_cfg_input" rows="6" placeholder='{"apiKey":"...","databaseURL":"https://...firebaseio.com","projectId":"..."}'>${esc(JSON.stringify(cfg,null,2))}</textarea>
+<p>
+  <button class="btn" onclick="saveFbConfig()">💾 บันทึกและเชื่อมต่อ Firebase</button>
+  <button class="btn s" onclick="syncUpToCloud()">⬆️ อัปโหลดข้อมูลปัจจุบันขึ้น Cloud</button>
+  <button class="btn s" onclick="syncDownFromCloud()">⬇️ ดึงข้อมูลล่าสุดจาก Cloud</button>
+  <button class="btn d" onclick="resetFbConfig()">รีเซ็ตการตั้งค่า</button>
+</p>
+</div>
+
+<div class="card"><h3>📧 แจ้งเตือนอีเมลอะไหล่ใกล้หมด</h3><label>อีเมลผู้รับ</label><input value="${esc(D.cfg.mail)}" onchange="D.cfg.mail=this.value;save()">${low().map(p=>`<div class="al">⚠️ ${esc(p.name)} เหลือ ${p.qty} <a href="mailto:${esc(D.cfg.mail)}?subject=${encodeURIComponent('อะไหล่ใกล้หมด: '+p.name)}&body=${encodeURIComponent('คงเหลือ '+p.qty+' '+p.unit)}">ส่งอีเมล</a></div>`).join('')}<small>บันทึกแจ้งเตือน:</small>${D.log.slice(0,8).map(l=>`<div><small>${l.d} — ${esc(l.m)}</small></div>`).join('')}</div>
+<div class="card"><h3>🔌 เชื่อมต่อ API ฐานข้อมูลภายนอก</h3><label>URL (JSON: [{name, dept, ...}])</label><input id="au" value="${esc(D.cfg.api)}" placeholder="https://his.example/api/equipment"><p><button class="btn" onclick="callApi()">ดึงข้อมูล</button></p><div id="ao"></div></div>`}
+};
+
+function saveFbConfig(){
+  try{
+    const val=$('#fb_cfg_input').value.trim();
+    const parsed=JSON.parse(val);
+    localStorage.setItem('sk_firebase_cfg', JSON.stringify(parsed));
+    alert('บันทึกการตั้งค่า Firebase สำเร็จ กำลังเชื่อมต่อใหม่...');
+    initFirebase();
+  }catch(e){
+    alert('รูปแบบ JSON ไม่ถูกต้อง: '+e.message);
+  }
+}
+function resetFbConfig(){
+  if(confirm('ต้องการลบการตั้งค่า Firebase ที่บันทึกไว้ในเบราว์เซอร์หรือไม่?')){
+    localStorage.removeItem('sk_firebase_cfg');
+    cloudStatus='offline';
+    cloudErrMsg='';
+    initFirebase();
+  }
+}
+function syncUpToCloud(){
+  if(!fbDb){ return alert('ยังไม่ได้เชื่อมต่อกับ Firebase'); }
+  fbDb.ref('sk_db').set(D).then(()=>{
+    alert('อัปโหลดข้อมูลทั้งหมดขึ้น Firebase Realtime Cloud สำเร็จ!');
+  }).catch(err=>{
+    alert('เกิดข้อผิดพลาดในการอัปโหลด: '+err.message);
+  });
+}
+function syncDownFromCloud(){
+  if(!fbDb){ return alert('ยังไม่ได้เชื่อมต่อกับ Firebase'); }
+  fbDb.ref('sk_db').once('value').then(snap=>{
+    if(snap.exists()){
+      D = snap.val();
+      save();
+      render();
+      alert('ดึงข้อมูลจาก Cloud สำเร็จ!');
+    } else {
+      alert('ไม่พบข้อมูลบน Cloud');
+    }
+  }).catch(err=>{
+    alert('เกิดข้อผิดพลาด: '+err.message);
+  });
+}
+
+const PW={'ต่ำ':1,'ปานกลาง':2,'สูง':3},PL={'สูง':'🔴 ด่วนมาก','ปานกลาง':'🟠 ปานกลาง','ต่ำ':'🟢 ทั่วไป'},SC={pending:'#e08a00',approved:'#3b7dd8',inprogress:'#8a56c9',done:'#1e9e5a',rejected:'#d33f49'};
+const pb=p=>`<span class="pv p${PW[p]||1}">${PL[p]||p}</span>`,rc=r=>'RQ-'+r.date.slice(2,4)+r.date.slice(5,7)+'-'+String(D.rq.indexOf(r)+1).padStart(3,'0');
+function stats(m){const M=D.rq.filter(r=>r.date.slice(0,7)==m),dn=M.filter(r=>r.st=='done'),rt=M.filter(r=>r.rate),dd=dn.filter(r=>r.done).map(r=>(new Date(r.done)-new Date(r.date))/864e5),c={},k={};M.forEach(r=>{c[E(r.eq)]=(c[E(r.eq)]||0)+1;const g=(D.eq.find(e=>e.id==r.eq)?.cat||'-').replace('ครุภัณฑ์','');k[g]=(k[g]||0)+1});
+return{cats:Object.entries(k),n:M.length,rate:M.length?Math.round(dn.length/M.length*100):0,days:dd.length?(dd.reduce((a,b)=>a+b,0)/dd.length).toFixed(1):'-',cost:dn.reduce((s,r)=>s+(r.cost||0),0),sat:rt.length?(rt.reduce((s,r)=>s+r.rate,0)/rt.length).toFixed(2):'-',top:Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5),st:Object.keys(ST).map(k=>[k,M.filter(r=>r.st==k).length]),dist:[5,4,3,2,1].map(k=>[k+' ดาว',rt.filter(r=>Math.round(r.rate)==k).length])}}
+function bi(){const m=window.bm||today().slice(0,7),s=stats(m),mk=[];for(let i=5;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);mk.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'))}
+const tr=mk.map(k=>[k.slice(2),stats(k)]),mx=Math.max(1,...tr.map(t=>t[1].n)),tot=Math.max(1,s.n);let acc=0;const cg=s.st.map(([k,n])=>{const a=acc/tot*100;acc+=n;return`${SC[k]} ${a}% ${acc/tot*100}%`}).join(',');
+return`<div class="card bi"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center"><h3 style="margin:0">📈 Executive BI &amp; รายงานสรุปประจำเดือน</h3><span><input type="month" style="width:auto" value="${m}" onchange="bm=this.value;render()"><button class="btn" onclick="printBI()">🖨 พิมพ์รายงานผู้บริหาร</button></span></div>
+<div class="ins">💡 เดือน ${m} มีงานซ่อม <b>${s.n}</b> งาน ซ่อมเสร็จ <b>${s.rate}%</b> เวลาซ่อมเฉลี่ย <b>${s.days}</b> วัน ค่าซ่อมรวม <b>${s.cost.toLocaleString()}</b> บาท · เครื่องที่แจ้งซ่อมบ่อยสุด: <b>${esc(s.top[0]?.[0]||'-')}</b> · ${low().length?'อะไหล่ใกล้หมด '+low().length+' รายการ ควรเร่งจัดซื้อ':'สต็อกอะไหล่อยู่ในเกณฑ์ปกติ'} · งานด่วนมากที่ยังค้าง ${D.rq.filter(r=>r.pri=='สูง'&&r.st!='done'&&r.st!='rejected').length} งาน</div>
+<div class="g" style="margin-bottom:14px"><div class="k k1"><i>🛠</i><b>${s.n}</b><span>งานซ่อมทั้งหมด</span></div><div class="k k4"><i>✅</i><b>${s.rate}%</b><span>อัตราซ่อมเสร็จ</span></div><div class="k k3"><i>⏱</i><b>${s.days}</b><span>เวลาซ่อมเฉลี่ย (วัน)</span></div><div class="k k2"><i>💰</i><b>${s.cost.toLocaleString()}</b><span>ค่าซ่อม (บาท)</span></div><div class="k k6"><i>⭐</i><b>${s.sat}</b><span>พึงพอใจเฉลี่ย</span></div></div><div class="g" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))"><div class="pn"><b>แนวโน้ม 6 เดือน (จำนวนงาน)</b><div class="tr">${tr.map((t,i)=>`<div>${t[1].n}<div class="cb" style="height:${t[1].n/mx*100}px;background:linear-gradient(${PAL[i%6]}bb,${PAL[i%6]})"></div>${t[0]}</div>`).join('')}</div></div>
+<div class="pn"><b>สัดส่วนสถานะงาน</b><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><div class="dn" style="background:conic-gradient(${cg||'#ccc 0 100%'})"><div>${s.n}</div></div><small>${s.st.map(([k,n])=>`<div><span style="color:${SC[k]}">●</span> ${ST[k]} ${n}</div>`).join('')}</small></div></div>
+<div class="pn"><b>ครุภัณฑ์แจ้งซ่อมบ่อย (Top 5)</b>${bars(s.top)}</div><div class="pn"><b>คะแนนความพึงพอใจ</b>${bars(s.dist)}</div><div class="pn"><b>งานซ่อมแยกตามประเภทครุภัณฑ์</b>${bars(s.cats)}</div></div></div>`}
+
+function printBI(){const m=window.bm||today().slice(0,7),s=stats(m);$('#pf').innerHTML=`<div style="text-align:center"><img src="${LOGO}" width="70"><h2>รายงานสรุปผลการปฏิบัติงานซ่อมบำรุงครุภัณฑ์ประจำเดือน ${m}<br>โรงพยาบาลสังขละบุรี</h2></div><table><tr><th>จำนวนงานทั้งหมด</th><td>${s.n}</td><th>อัตราซ่อมเสร็จ</th><td>${s.rate}%</td></tr><tr><th>เวลาซ่อมเฉลี่ย (วัน)</th><td>${s.days}</td><th>ค่าซ่อมรวม (บาท)</th><td>${s.cost.toLocaleString()}</td></tr><tr><th>ความพึงพอใจเฉลี่ย</th><td>${s.sat}</td><th>อะไหล่ใกล้หมด</th><td>${low().map(p=>p.name).join(', ')||'-'}</td></tr></table><h3>ครุภัณฑ์แจ้งซ่อมบ่อย</h3><table>${s.top.map(t=>`<tr><td>${esc(t[0])}</td><td>${t[1]} ครั้ง</td></tr>`).join('')}</table><h3>สถานะงาน</h3><table>${s.st.map(([k,n])=>`<tr><td>${ST[k]}</td><td>${n}</td></tr>`).join('')}</table><br><p style="text-align:right">ลงชื่อ.................ผู้อำนวยการ</p>`;window.print()}
+function showCode(){const t=('<style>\n'+document.querySelector('style').textContent+'</style>\n<script>\n'+[...document.scripts].pop().textContent).replace(/base64,[A-Za-z0-9+\/=]{100,}/g,'base64,…(ตัดข้อมูลรูปออก)'),m=document.createElement('div');m.className='mod';m.innerHTML='<div style="max-width:900px"><h3>&lt;/&gt; โค้ดของระบบ</h3><pre style="max-height:60vh;overflow:auto;font-size:12px;white-space:pre-wrap"></pre><button class="btn" id="cc">คัดลอกโค้ด</button><button class="btn s" onclick="this.closest(\'.mod\').remove()">ปิด</button></div>';m.querySelector('pre').textContent=t;m.querySelector('#cc').onclick=()=>{try{navigator.clipboard.writeText(t)}catch(e){}};document.body.appendChild(m)}
+if(!D.hist){D.hist=1;const q=D.eq.map(e=>e.id);for(let i=1;i<=5;i++)for(let j=0;j<2+i%3;j++){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);d.setDate(5+j*4);const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');D.rq.push({id:uid(),eq:q[(i+j)%q.length],by:'u4',date:ds,prob:['เครื่องไม่ติด','มีเสียงดัง','ค่าคลาดเคลื่อน','รั่วซึม'][(i+j)%4],pri:['ต่ำ','ปานกลาง','สูง'][(i*j)%3],st:'done',tech:'u3',cost:500*(i+j+1),note:'ซ่อมและทดสอบแล้ว',done:ds,rate:3+(i+j)%3})}}
+const IMGF=(x,v)=>`<input type="hidden" id="f_${x.k}" value="${esc(v[x.k]||'')}"><input type="file" accept="image/*" id="fi_${x.k}"><img id="pv_${x.k}" src="${esc(v[x.k]||'')}" style="display:${v[x.k]?'block':'none'};max-width:160px;border-radius:12px;margin-top:8px" alt="">`;
+function BINDIMG(m,f){f.filter(x=>x.t=='img').forEach(x=>{const fi=m.querySelector('#fi_'+x.k);fi.onchange=()=>{if(!fi.files[0])return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),k=Math.min(1,360/Math.max(im.width,im.height));c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);const u=c.toDataURL('image/jpeg',.72);m.querySelector('#f_'+x.k).value=u;const p=m.querySelector('#pv_'+x.k);p.src=u;p.style.display='block'};im.src=r.result};r.readAsDataURL(fi.files[0])}})}
+const demo={e1:['Omron','HEM-7121','OM-2201-0091',3500],e2:['Siemens','Multix Select DR','SM-XR-5581',2850000],e3:['Dräger','Savina 300','DR-VT-3320',890000],e4:['Daikin','FTM18','DK-AC-7741',28500],e5:['GE Healthcare','Logiq V3','GE-US-1187',650000]};
+D.eq.forEach(e=>{if(!e.brand&&demo[e.id])[e.brand,e.model,e.serial,e.price]=demo[e.id]});
+if(!D.ann)D.ann=[{id:'a1',lv:'info',t:'ประกาศ: ปิดปรับปรุงระบบไฟฟ้าตึกผู้ป่วยใน วันเสาร์นี้ 08:00–12:00 น. โปรดเตรียมสำรองเครื่องมือแพทย์',d:today()},{id:'a2',lv:'warn',t:'โปรดระบุความเร่งด่วนในใบแจ้งซ่อมให้ชัดเจน เพื่อให้จัดลำดับงานได้เหมาะสม',d:today()}];
+function banners(){const a=[],adm=can('admin','head'),ops=can('admin','head','tech');
+if(ops&&low().length)a.push(['danger','🔔','อะไหล่ใกล้หมด '+low().length+' รายการ: '+low().map(p=>p.name).join(', '),'pt']);
+const pn=D.rq.filter(r=>r.st=='pending').length;if(adm&&pn)a.push(['warn','⏳','มีงานรออนุมัติ '+pn+' งาน','req']);
+const ur=D.rq.filter(r=>r.pri=='สูง'&&r.st!='done'&&r.st!='rejected').length;if(ops&&ur)a.push(['danger','🚨','งานด่วนมากที่ยังค้างอยู่ '+ur+' งาน','req']);
+return`<div class="bns">${a.map(x=>`<div class="bn ${x[0]}"><i>${x[1]}</i><div>${esc(x[2])}</div><button class="btn s" onclick="view='${x[3]}';render()">ดูรายการ</button></div>`).join('')}${D.ann.map(n=>`<div class="bn ${n.lv}"><i>${n.lv=='danger'?'📣':n.lv=='warn'?'⚠️':'📢'}</i><div>${esc(n.t)}<small style="display:block;opacity:.7">ประกาศเมื่อ ${n.d}</small></div>${adm?`<button class="btn s" onclick="D.ann=D.ann.filter(x=>x.id!='${n.id}');save();render()">ลบ</button>`:''}</div>`).join('')}${adm?'<button class="btn s" style="margin-bottom:12px" onclick="addAnn()">📣 เพิ่มประกาศ</button>':''}</div>`}
+function addAnn(){form('เพิ่มประกาศ',[{k:'lv',l:'ระดับ',t:'select',o:[['info','📢 ทั่วไป'],['warn','⚠️ สำคัญ'],['danger','📣 เร่งด่วน']]},{k:'t',l:'ข้อความประกาศ',t:'textarea'}],o=>{if(!o.t)return false;D.ann.unshift({id:uid(),lv:o.lv,t:o.t,d:today()});save()})}
+function eqView(id){const e=D.eq.find(x=>x.id==id),H=D.rq.filter(r=>r.eq==id).sort((a,b)=>b.date.localeCompare(a.date)),m=document.createElement('div');m.className='mod';
+m.innerHTML=`<div style="max-width:760px"><div class="ev">${e.photo?`<img src="${esc(e.photo)}" alt="">`:'<div class="ph0">🩺</div>'}<div><small style="color:var(--mu)">${esc(e.code)}</small><h3 style="margin:2px 0 6px">${esc(e.name)}</h3><span class="b ${e.status=='ปกติ'?'done':e.status=='ซ่อม'?'inprogress':'rejected'}">${esc(e.status)}</span></div></div>
+<div class="g" style="margin:14px 0">${[['ประเภท',e.cat],['ยี่ห้อ (Brand)',e.brand],['รุ่น (Model)',e.model],['Serial Number',e.serial],['หน่วยงาน / แผนก',e.dept],['ที่ตั้ง',e.loc],['ราคาจัดซื้อ','฿'+(e.price||0).toLocaleString()]].map(([l,v])=>`<div class="kv"><span>${l}</span><b>${esc(v||'-')}</b></div>`).join('')}</div>
+<h4 style="margin:0 0 8px">📜 ประวัติการซ่อมบำรุง — ${H.length} ครั้ง · ค่าซ่อมรวม ฿${H.reduce((s,r)=>s+(r.cost||0),0).toLocaleString()}</h4><div class="tw"><table><tr><th>วันที่</th><th>เลขที่</th><th>อาการ</th><th>วิธีแก้ไข</th><th>สถานะ</th><th>ค่าซ่อม</th></tr>${H.map(r=>`<tr><td>${r.date}</td><td>${rc(r)}</td><td>${esc(r.prob)}</td><td>${esc(r.note||'-')}<br><small>${r.tech?U(r.tech):''}</small></td><td><span class="b ${r.st}">${ST[r.st]}</span></td><td>${(r.cost||0).toLocaleString()}</td></tr>`).join('')||'<tr><td colspan="6">ยังไม่มีประวัติการซ่อม</td></tr>'}</table></div><p><button class="btn s" onclick="this.closest('.mod').remove()">ปิด</button></p></div>`;document.body.appendChild(m)}
+async function callApi(){D.cfg.api=$('#au').value;save();try{const r=await fetch(D.cfg.api),j=await r.json();$('#ao').innerHTML='<div class="tw"><table>'+(Array.isArray(j)?j:[j]).slice(0,20).map(o=>'<tr>'+Object.values(o).map(x=>`<td>${esc(typeof x=='object'?JSON.stringify(x):x)}</td>`).join('')+'</tr>').join('')+'</table></div>'}catch(e){$('#ao').innerHTML='<div class="al">เชื่อมต่อไม่สำเร็จ: '+esc(e.message)+' (ต้องติดตั้งระบบบนเซิร์ฟเวอร์ที่อนุญาต CORS)</div>'}}
+const CAT=['ครุภัณฑ์สำนักงาน','ครุภัณฑ์ยานพาหนะและขนส่ง','ครุภัณฑ์ไฟฟ้าและวิทยุ','ครุภัณฑ์โฆษณาและเผยแพร่','ครุภัณฑ์การเกษตร','ครุภัณฑ์โรงงาน','ครุภัณฑ์ก่อสร้าง','ครุภัณฑ์สำรวจ','ครุภัณฑ์วิทยาศาสตร์และการแพทย์','ครุภัณฑ์คอมพิวเตอร์','ครุภัณฑ์การศึกษา','ครุภัณฑ์งานบ้านงานครัว','ครุภัณฑ์กีฬา','ครุภัณฑ์ดนตรีและนาฏศิลป์','ครุภัณฑ์อาวุธ','ครุภัณฑ์อื่น ๆ'];
+D.eq.forEach(e=>{if(!e.cat)e.cat=/แอร์|ปรับอากาศ/.test(e.name)?CAT[2]:CAT[8]});
+function addReq(){form('แจ้งซ่อมใหม่',[{k:'cat',l:'ประเภทครุภัณฑ์ (กรองรายการด้านล่าง)',t:'select',o:['ทั้งหมด',...CAT]},{k:'eq',l:'ครุภัณฑ์',t:'select',o:D.eq.map(e=>[e.id,e.code+' '+e.name])},{k:'prob',l:'อาการ/ปัญหา',t:'textarea'},{k:'pri',l:'ความเร่งด่วน',t:'select',o:[['ต่ำ','🟢 ทั่วไป'],['ปานกลาง','🟠 ปานกลาง'],['สูง','🔴 ด่วนมาก (กระทบการรักษา)']]}],o=>{if(!o.prob||!o.eq)return false;const{cat,...x}=o;D.rq.push({id:uid(),...x,by:me.id,date:today(),st:'pending'});save()});const ms=document.querySelectorAll('.mod'),m=ms[ms.length-1],c=m.querySelector('#f_cat'),q=m.querySelector('#f_eq');c.onchange=()=>{const l=D.eq.filter(x=>c.value=='ทั้งหมด'||x.cat==c.value);q.innerHTML=l.map(x=>`<option value="${x.id}">${esc(x.code+' '+x.name)}</option>`).join('')||'<option value="">— ไม่มีครุภัณฑ์ในประเภทนี้ —</option>'}}
+function rate(id){const o5=[[5,'5 - มากที่สุด'],[4,'4 - มาก'],[3,'3 - ปานกลาง'],[2,'2 - น้อย'],[1,'1 - น้อยที่สุด']];form('ประเมินความพึงพอใจหลังการซ่อม',[{k:'sp',l:'ความรวดเร็วในการซ่อม',t:'select',o:o5},{k:'ql',l:'คุณภาพงานซ่อม / เครื่องใช้งานได้ดี',t:'select',o:o5},{k:'sv',l:'มารยาทและการให้บริการของช่าง',t:'select',o:o5},{k:'cm',l:'ข้อเสนอแนะ',t:'textarea'}],o=>{const a=[+o.sp,+o.ql,+o.sv];Object.assign(D.rq.find(r=>r.id==id),{rt:{sp:a[0],ql:a[1],sv:a[2]},rate:Math.round(a.reduce((x,y)=>x+y)/3*10)/10,cm:o.cm});save()})}
+function setSt(id,s){D.rq.find(r=>r.id==id).st=s;const r=D.rq.find(r=>r.id==id),e=D.eq.find(x=>x.id==r.eq);if(e&&s=='inprogress')e.status='ซ่อม';if(s=='inprogress')r.tech=me.id;save();render()}
+function finish(id){form('บันทึกผลซ่อม',[{k:'note',l:'วิธีแก้ไข',t:'textarea'},{k:'cost',l:'ค่าใช้จ่าย (บาท)',t:'number'},{k:'pid',l:'อะไหล่ที่ใช้',t:'select',o:[['','— ไม่ใช้ —'],...D.pt.map(p=>[p.id,p.name+' (คงเหลือ '+p.qty+')'])]},{k:'q',l:'จำนวน',t:'number'}],o=>{const r=D.rq.find(x=>x.id==id);if(o.pid){const p=D.pt.find(x=>x.id==o.pid);if(o.q>p.qty)return alert('อะไหล่ไม่พอ')||false;p.qty-=o.q}Object.assign(r,{st:'done',note:o.note,cost:o.cost,done:today(),tech:me.id});const e=D.eq.find(x=>x.id==r.eq);if(e)e.status='ปกติ';save()})}
+function eqForm(id){const e=D.eq.find(x=>x.id==id)||{};form(id?'แก้ไขครุภัณฑ์':'เพิ่มครุภัณฑ์',[{k:'code',l:'รหัสครุภัณฑ์'},{k:'cat',l:'ประเภทครุภัณฑ์ (ตามมาตรฐาน)',t:'select',o:CAT},{k:'photo',l:'รูปภาพครุภัณฑ์',t:'img'},{k:'name',l:'ชื่อครุภัณฑ์'},{k:'brand',l:'ยี่ห้อ (Brand)'},{k:'model',l:'รุ่น (Model)'},{k:'serial',l:'Serial Number'},{k:'dept',l:'หน่วยงาน / แผนก'},{k:'loc',l:'ที่ตั้ง'},{k:'price',l:'ราคาจัดซื้อ (บาท)',t:'number'},{k:'status',l:'สถานะ',t:'select',o:['ปกติ','ซ่อม','จำหน่าย']}],o=>{if(!o.name)return false;id?Object.assign(e,o):D.eq.push({id:uid(),...o});save()},e)}
+function ptForm(id){const p=D.pt.find(x=>x.id==id)||{};form(id?'แก้ไขอะไหล่':'เพิ่มอะไหล่',[{k:'name',l:'ชื่ออะไหล่'},{k:'qty',l:'คงเหลือ',t:'number'},{k:'min',l:'จุดสั่งซื้อขั้นต่ำ',t:'number'},{k:'unit',l:'หน่วย'}],o=>{if(!o.name)return false;id?Object.assign(p,o):D.pt.push({id:uid(),...o});save()},p)}
+function usForm(id){const u=D.users.find(x=>x.id==id)||{};form(id?'แก้ไขผู้ใช้':'เพิ่มผู้ใช้',[{k:'u',l:'ชื่อผู้ใช้'},{k:'p',l:'รหัสผ่าน'},{k:'name',l:'ชื่อ-สกุล'},{k:'role',l:'สิทธิ์',t:'select',o:Object.entries(RL)}],o=>{if(!o.u||!o.p)return false;id?Object.assign(u,o):D.users.push({id:uid(),...o});save()},u)}
+function pr(id){const r=D.rq.find(x=>x.id==id),e=D.eq.find(x=>x.id==r.eq)||{};$('#pf').innerHTML=`<div style="text-align:center"><img src="${LOGO}" width="70"></div><h2 style="text-align:center">ใบแจ้งส่งซ่อมครุภัณฑ์<br>โรงพยาบาลสังขละบุรี</h2><table><tr><th>เลขที่</th><td>${rc(r)}</td><th>วันที่</th><td>${r.date}</td></tr><tr><th>ความเร่งด่วน</th><td colspan="3">${PL[r.pri]}</td></tr><tr><th>ครุภัณฑ์</th><td>${esc(e.code)} ${esc(e.name)}</td><th>หน่วยงาน</th><td>${esc(e.dept)}</td></tr><tr><th>อาการ</th><td colspan="3">${esc(r.prob)}</td></tr><tr><th>ผู้แจ้ง</th><td>${U(r.by)}</td><th>สถานะ</th><td>${ST[r.st]}</td></tr></table><br><br><table style="border:0"><tr><td style="border:0;text-align:center">ลงชื่อ.................ผู้แจ้ง</td><td style="border:0;text-align:center">ลงชื่อ.................ผู้อนุมัติ</td><td style="border:0;text-align:center">ลงชื่อ.................ช่างผู้รับงาน</td></tr></table>`;window.print()}
+window.print0=()=>{const R=window.RR||[];$('#pf').innerHTML='<h2>รายงานสรุปงานซ่อมบำรุง รพ.สังขละบุรี</h2><table><tr><th>วันที่</th><th>ครุภัณฑ์</th><th>อาการ</th><th>สถานะ</th><th>ค่าซ่อม</th></tr>'+R.map(r=>`<tr><td>${r.date}</td><td>${esc(E(r.eq))}</td><td>${esc(r.prob)}</td><td>${ST[r.st]}</td><td>${r.cost||0}</td></tr>`).join('')+'</table>';window.print()};
+function cp(){const t=['วันที่\tครุภัณฑ์\tอาการ\tสถานะ\tค่าซ่อม\tคะแนน',...(window.RR||[]).map(r=>[r.date,E(r.eq),r.prob,ST[r.st],r.cost||0,r.rate||''].join('\t'))].join('\n');try{navigator.clipboard.writeText(t).then(()=>alert('คัดลอกแล้ว วางใน Excel ได้เลย'))}catch(e){prompt('คัดลอกข้อความนี้',t)}}
+
+// Initialize Firebase Realtime Cloud on start
+initFirebase();
+render();
+</script></body></html>
