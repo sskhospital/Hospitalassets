@@ -1,6 +1,9 @@
 {
   "rules": {
     ".read": true,
-    ".write": true
+    ".write": true,
+    "sk_db": {
+      ".indexOn": ["date", "st", "by", "pri"]
+    }
   }
 }
